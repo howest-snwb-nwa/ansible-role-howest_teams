@@ -29,7 +29,7 @@
     body:
       { "displayName": "{{ item }}" }
     status_code: 201
-  loop: "{{ team_channels }}"
+  loop: "{{ team_channels if team_channels is defined and team_channels is iterable and team_channels is not string else [] }}"
   loop_control:
     pause: 1
   when: item not in channels
