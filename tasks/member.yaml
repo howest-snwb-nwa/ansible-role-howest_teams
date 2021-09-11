@@ -46,27 +46,3 @@
     teams_role: '[]'
   ansible.builtin.include_tasks:
     file: add_users.yaml
-
-# - name: "[Microsoft Teams] Add students to Microsoft Teams channel {{ team_displayname }}."
-#   ansible.builtin.uri:
-#     url: "https://graph.microsoft.com/beta/teams/{{ team_id }}/members"
-#     method: POST
-#     body_format: json
-#     headers:
-#       Authorization: Bearer {{ api_key_ms }}
-#     body:
-#       {
-#           "@odata.type": "#microsoft.graph.aadUserConversationMember",
-#           "roles": [],
-#           "user@odata.bind": "https://graph.microsoft.com/beta/users('{{ item }}')"
-#       }
-#     status_code: 201
-#   loop: "{{ aduser.results | community.general.json_query('[*].json.id') }}"
-#   loop_control:
-#     pause: 1
-#   register: added_students
-#   ignore_errors: true
-
-# - name: Show added students.
-#   ansible.builtin.debug:
-#     msg: "{{ added_students.results | community.general.json_query('[*].json.displayName') }}"
