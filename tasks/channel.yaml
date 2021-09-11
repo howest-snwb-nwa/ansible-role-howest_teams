@@ -1,0 +1,35 @@
+---
+# Create new channels in Microsoft Teams team.
+
+- name: "[Microsoft Teams] Request current channels in {{ team_displayname }}."
+  ansible.builtin.uri:
+    url: "https://graph.microsoft.com/beta/teams/{{ team_id }}/channels"
+    method: GET
+    body_format: json
+    headers:
+      Authorization: Bearer {{ api_key_ms }}
+  check_mode: false
+  register: list_channels
+
+- name: Set existing channels.
+  ansible.builtin.set_fact:
+    channels: "{{ list_channels.json.value | community.general.json_query('[*].displayName') }}"
+
+- name: Show existing channels.
+  ansible.builtin.debug:
+    msg: "Existing channels: {{ channels }}."
+
+- name: "[Microsoft Teams] Create channels."
+  ansible.builtin.uri:
+    url: "https://graph.microsoft.com/beta/teams/{{ team_id }}/channels"
+    method: POST
+    body_format: json
+    headers:
+      Authorization: Bearer {{ api_key_ms }}
+    body:
+      { "displayName": "{{ item }}" }
+    status_code: 201
+  loop: "{{ team_channels }}"
+  loop_control:
+    pause: 1
+  when: item not in channels

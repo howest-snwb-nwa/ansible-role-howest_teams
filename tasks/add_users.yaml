@@ -1,0 +1,60 @@
+---
+
+# TODO: per_page=100 is a workaround and might not be enough.
+- name: "[LEHO] Query users in module {{ leho_course_infosite }} ."
+  ansible.builtin.uri:
+    url: "{{ leho_url }}/courses/{{ leho_course_infosite }}/users?search_term=howest.be&sort=email&enrollment_type[]={{ enrollment_type }}&per_page=100"
+    method: GET
+    body_format: json
+    headers:
+      Authorization: Bearer {{ api_key_leho }}
+  check_mode: false
+  register: leho_users
+
+- name: Set emails.
+  ansible.builtin.set_fact:
+    leho_emails: "{{ leho_users['json'] | community.general.json_query('[*].login_id') | lower }}"
+
+- name: "Show {{ enrollment_type }} emails."
+  ansible.builtin.debug:
+    msg: "{{ leho_emails }}"
+
+- name: "[Microsoft Azure AD] Query Azure AD user account for users who are not already a member of the Team."
+  ansible.builtin.uri:
+    url: "https://graph.microsoft.com/beta/users/{{ item }}"
+    method: GET
+    body_format: json
+    headers:
+      Authorization: Bearer {{ api_key_ms }}
+  check_mode: false
+  loop: "{{ leho_emails }}"
+  when: item not in team_email
+  register: aduser
+
+- name: Show AD users who are not already a group member.
+  ansible.builtin.debug:
+    msg: "{{ aduser.results | community.general.json_query('[*].json.displayName') }}"
+
+- name: "[Microsoft Teams] Add users to Microsoft Teams channel {{ team_displayname }} . ({{ enrollment_type }})"
+  ansible.builtin.uri:
+    url: "https://graph.microsoft.com/beta/teams/{{ team_id }}/members"
+    method: POST
+    body_format: json
+    headers:
+      Authorization: Bearer {{ api_key_ms }}
+    body:
+      {
+          "@odata.type": "#microsoft.graph.aadUserConversationMember",
+          "roles": "{{ teams_role }}",
+          "user@odata.bind": "https://graph.microsoft.com/beta/users('{{ item }}')"
+      }
+    status_code: 201
+  loop: "{{ aduser.results | community.general.json_query('[*].json.id') }}"
+  loop_control:
+    pause: 1
+  register: added_users
+  ignore_errors: true
+
+- name: "Show added users. ({{ enrollment_type }})"
+  ansible.builtin.debug:
+    msg: "{{ added_users.results | community.general.json_query('[*].json.displayName') }}"

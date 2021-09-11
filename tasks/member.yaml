@@ -1,0 +1,72 @@
+---
+# Add members to Microsoft Teams team.
+
+- name: "[LEHO] Check the full name of LEHO course {{ leho_course_infosite }} ."
+  ansible.builtin.uri:
+    url: "{{ leho_url }}/courses/{{ leho_course_infosite }}"
+    method: GET
+    body_format: json
+    headers:
+      Authorization: Bearer {{ api_key_leho }}
+  check_mode: false
+  register: leho_course
+
+- name: Show LEHO module name.
+  ansible.builtin.debug:
+    msg: "Using LEHO module [{{ leho_course.json.name }}] as source of members."
+
+- name: "[Microsoft Teams] Request members of current Team."
+  ansible.builtin.uri:
+    url: "https://graph.microsoft.com/beta/teams/{{ team_id }}/members"
+    method: GET
+    body_format: json
+    headers:
+      Authorization: Bearer {{ api_key_ms }}
+  check_mode: false
+  register: team_members
+
+- name: Set current Team emails.
+  ansible.builtin.set_fact:
+    team_email: "{{ team_members['json']['value'] | community.general.json_query('[*].email') | lower }}"
+
+- name: Show users who are already a member of the Team.
+  ansible.builtin.debug:
+    msg: "{{ team_email }}" 
+
+- name: Include set of tasks to collect teacher information from LEHO and add them to Teams.
+  vars:
+    enrollment_type: teacher
+    teams_role: '["owner"]'
+  ansible.builtin.include_tasks:
+    file: add_users.yaml
+
+- name: Include set of tasks to collect student information from LEHO and add them to Teams.
+  vars:
+    enrollment_type: student
+    teams_role: '[]'
+  ansible.builtin.include_tasks:
+    file: add_users.yaml
+
+# - name: "[Microsoft Teams] Add students to Microsoft Teams channel {{ team_displayname }}."
+#   ansible.builtin.uri:
+#     url: "https://graph.microsoft.com/beta/teams/{{ team_id }}/members"
+#     method: POST
+#     body_format: json
+#     headers:
+#       Authorization: Bearer {{ api_key_ms }}
+#     body:
+#       {
+#           "@odata.type": "#microsoft.graph.aadUserConversationMember",
+#           "roles": [],
+#           "user@odata.bind": "https://graph.microsoft.com/beta/users('{{ item }}')"
+#       }
+#     status_code: 201
+#   loop: "{{ aduser.results | community.general.json_query('[*].json.id') }}"
+#   loop_control:
+#     pause: 1
+#   register: added_students
+#   ignore_errors: true
+
+# - name: Show added students.
+#   ansible.builtin.debug:
+#     msg: "{{ added_students.results | community.general.json_query('[*].json.displayName') }}"

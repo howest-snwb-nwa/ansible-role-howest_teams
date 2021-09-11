@@ -1,0 +1,32 @@
+---
+api_key_leho: 12401~steekdiemaarineenanderefile
+api_key_ms: eyJ0eXAiOiJKV1QiLCJub25jZSI6IjVaTWtsUVVVennogveellanger
+
+team_displayname: STUDENT.SNWB.21-22.JH1
+
+# leho_courses is a list of the course numbers 
+leho_course_infosite: 14651
+
+team_channels:
+  - Basic Systems Management
+  - Choice
+  - Database Management
+  - Datacom Advanced
+  - Datacom Basics
+  - Datacom Intro
+  - Intership
+  - Linux 1
+  #- Linux 2
+  - Network Automation
+  - Network Programming Essentials
+  - Network Security
+  - Project
+  - Security Essentials
+  - SimLab 1
+  - SimLab 2
+  - Voice and Video over IP
+  - Windows 1
+  #- Windows 2
+  - Workplace Communication 1
+  - Workplace Communication 2
+  - Four-oh-four

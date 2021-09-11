@@ -1,0 +1,38 @@
+---
+- name: Find Microsoft Teams team.
+  tags: channel, member
+  block:
+  - name: "[Microsoft Teams] Query my subscribed Teams."
+    ansible.builtin.uri:
+      url: "https://graph.microsoft.com/beta/me/joinedTeams"
+      method: GET
+      body_format: json
+      headers:
+        Authorization: Bearer {{ api_key_ms }}
+    register: joined_teams
+    check_mode: false
+
+  - name: Set team ID.
+    ansible.builtin.set_fact:
+      team_id: "{{ (joined_teams.json.value | community.general.json_query(jmesquery))[0] }}"
+    vars:
+      jmesquery: "[? displayName ==`{{ team_displayname }}`].id"
+
+  - name: "Check existence of {{ team_displayname }} ."
+    ansible.builtin.assert:
+      that:
+        - team_id|length > 0
+      success_msg: "You are a member of {{ team_displayname }}"
+      fail_msg: "{{ team_displayname }} does not exist or you are not a member."
+
+  - name: Show Team ID.
+    ansible.builtin.debug:
+      msg: "Team id for {{ team_displayname }} is {{ team_id }} ."
+
+- name: Create channels.
+  tags: channel
+  ansible.builtin.import_tasks: channel.yaml
+
+- name: Add members.
+  tags: member
+  ansible.builtin.import_tasks: member.yaml

@@ -1,0 +1,11 @@
+# Create channels and sync users.
+- name: HOWEST - create Teams channels and sync users from LEHO.
+  hosts: localhost
+  gather_facts: false
+  vars:
+    api_key_leho: your-leho-api-key
+    api_key_ms: your_msgraph-access-token
+    team_displayname: STUDENT.SNWB.21-22.JH1
+    
+  roles:
+    - howest_teams
