@@ -19,20 +19,19 @@ Role Variables
 * `api_key_ms`: Your Microsoft Graph access token. See https://docs.microsoft.com/en-us/graph/auth/
 * `team_displayname`: The Team name as seen in Microsoft Teams.
 * `leho_course_infosite`: The id of the LEHO module. This can be found in the URL of the module.
-* `team_channels`: A list of channels to be added.
+* `team_channels`: A list of channels to be added. If you leave this variable empty or undefined, no channels will be added.
 
 Dependencies
 ------------
 
 None.
 
-
 Example Playbook
 ----------------
 
 Get users from the SNWB Infosite and add them to Microsoft Teams.
 
-```
+```YAML
 - name: HOWEST - create Teams channels and sync users from LEHO.
   hosts: localhost
   gather_facts: false
