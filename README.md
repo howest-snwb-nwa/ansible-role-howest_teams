@@ -15,7 +15,7 @@ This role is meant to run on your own machine (localhost).
 How to Run
 ----------
  
-1. `git clone https://github.com/howest-snwb-nwa/ansible-role-howest_teams.git` to your Ansible roles directory
+1. `git clone git@git.ti.howest.be:TI/_Lecturers/integrations/leho-teams-channels.git` to your Ansible roles directory
 2. Rename to howest_teams as given in the playbook below. Make a playbook with the right variables. For TI, this is an example (`howest_teams_TI.yaml`):
     ```  
     ---
