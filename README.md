@@ -12,6 +12,38 @@ Requirements
 
 This role is meant to run on your own machine (localhost).
 
+How To Run
+----------
+ 
+git clone https://github.com/howest-snwb-nwa/ansible-role-howest_teams.git to your Ansible roles directory
+
+rename to howest_teams as given in the playbook below. Make a playbook with the right variables. For TI, this is an example (`howest_teams_TI.yaml`):
+ 
+```  
+---
+# Create channels and sync users.
+- name: HOWEST - create Teams channels and sync users from LEHO.
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - ~/ansible/vars/api_keys.yml   # Voor access tokens (ansible-vault).
+  vars:
+    leho_course_infosite: 10990   # Wijzig naar infosite TI 2021-2022!
+    team_displayname: STUDENT.TI.21-22
+    team_channels:
+      - General
+    # api_key_leho: indien niet in vars_files
+    # api_key_ms: indien niet in vars_files
+  roles:
+    - howest_teams
+```
+      
+* More channels can be added.
+* Already existing users are checked. That's the reason why the ms graph API calls use the beta URL. The stable 1.0 is bugged (oh, the irony).
+* The playbook is idempotent: run as many times as you want.
+* Test what will happen with `--check`
+* Adding only channels or members: use `--tags channel` or `--tag member`. This won't be time saving.
+
 Role Variables
 --------------
 
